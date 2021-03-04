@@ -1,0 +1,35 @@
+<?php
+
+class App_auth
+{
+	private $CI;
+	
+	function App_auth()
+	{
+		$this->CI = &get_instance();
+		if(!isset($this->CI->session)){  //Check if session lib is loaded or not
+              $this->CI->load->library('session');  //If not loaded, then load it here
+        }
+	}
+	
+	function index()
+	{
+		// If no loggedin
+		$withoutLoginPageArray = array('login','forgot-password','reset-password','');
+		
+		$urls = array();
+		$url = $_SERVER['REQUEST_URI'];
+		$urls = explode('/',$url);
+		
+		if ( $this->CI->session->userdata('user_id') == ''  && !in_array($urls[2],$withoutLoginPageArray)  )  // If no session found redirect to login page.
+		{
+			redirect(base_url());
+		}
+		elseif( $this->CI->session->userdata('user_id') != '' && in_array($urls[2],$withoutLoginPageArray ))
+		{
+			redirect(base_url('user/dashboard'));
+		}
+	}
+}
+
+?>

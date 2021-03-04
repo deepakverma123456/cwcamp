@@ -1,0 +1,369 @@
+<?php include("./application/views/common/template-top.php"); ?>
+<link rel = "stylesheet" type = "text/css" href = "<?php echo base_url(); ?>assets/css/dataTables.bootstrap.min.css" />
+<link rel = "stylesheet" type = "text/css" href = "<?php echo base_url(); ?>assets/css/responsive.bootstrap.min.css" />
+
+<style>
+	.check-right{
+		text-align: right;
+		float: right;
+		margin-right: 3%;
+		margin-top: 1%;
+	}
+	.tab-content{
+		border-bottom: 1px solid #ddd;
+		border-left: 1px solid #ddd;
+		border-right: 1px solid #ddd;
+		padding: 4px 4px 33px;
+	}
+	#datatable_filter, #datatable2_filter{
+		height: 28px;
+	}
+	#datatable_filter input[type='search'], #datatable2_filter input[type='search']{
+		float: right;
+		height: 25px;
+		width: 73%;
+		border:1px solid #ddd;
+	}
+	.pimg-thumb{
+		border: 1px solid #d8d8d8;
+		margin: 0 10px 0px 5px;
+		padding: 3px;
+		width: 50px;
+		height:50px;
+	}
+	.txt-small{
+		padding: 6px !important;
+		font-size:13px;
+	}
+	
+	.panel-info {
+		border-color: #FFF;
+	}
+	.panel {
+		box-shadow: none;
+	}
+	.panel-info > .panel-heading {
+		background-color: #FFF;
+	}
+	.panel-info > .panel-heading + .panel-collapse > .panel-body{
+		border-top-color: #ffd4d4;
+	}
+	.container > div{		
+		margin-bottom:10px;
+	}
+</style>
+
+<!-- page content -->
+<div class="right_col" role="main">
+	<div class="col-md-12 col-sm-12 col-xs-12">
+		<div class="x_panel">
+			<div class="x_title">
+				<h2>Module Permissions</small></h2>
+				<ul class="nav navbar-right panel_toolbox">
+					
+				</ul>
+				<div class="clearfix"></div>
+			</div>
+	
+			<div class="x_content">
+				<div class="container">
+					<div class="col-md-6 col-sm-6 col-xs-12 ">
+						<div class="tabs" id="tabs">
+							<ul class="nav nav-tabs">
+								<li class="active"><a href="#tabs-2" data-toggle="tab">Add Permission</a></li>							
+								<li><a  href="#tabs-1" data-toggle="tab">Update Permission</a></li>
+							</ul>
+						</div>
+						<div class="tab-content">
+							<div id="tabs-2" class="tab-pane fade in active">
+								<table id="datatable2" class="table table-striped table-bordered bulk_action" width="100%">
+									<thead>
+										<tr>
+											<!--<th width="5%">#</th>-->
+											<th  width="15%">Campaign User</th>
+										</tr>
+									</thead>
+								</table>
+							</div>
+							
+							<div id="tabs-1" class="tab-pane fade">
+								<table id="datatable" class="table table-striped table-bordered bulk_action" width="100%">
+								   <thead>
+									   <tr>
+										<!--	<th width="5%">#</th>-->
+											<th  width="15%">Campaign User</th>
+									   </tr>
+								   </thead>
+							   </table>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-6 col-sm-6 col-xs-12 ">
+						
+						<h4 class="text-center col-xs-12" id="loading_div" style="margin-top:100px">
+							<div class="page-load" id="loading"></div>
+							<i id="loading" class="btn fsubmit"></i>		
+							<div class="col-xs-12 ms text-center">Choose a user, and continue to create or update permission.</div>		
+						</h4>
+						<!--Error message div-->
+						<div  id="err-div" style="display: none">
+							<div class="alert alert-danger alert-dismissable">
+								<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+								<span id="err-msg"><?php echo validation_errors(); ?></span>
+							</div>
+						</div>
+						<!--Success message div-->
+						<?php if($this->session->flashdata('message_name')) { ?>
+						<div  id="success-div">
+							<div class="alert alert-success alert-dismissable" style="margin-top:15%">
+								<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+								<?php echo $this->session->flashdata('message_name'); ?>
+							</div>
+						</div>
+						<?php } ?>
+						
+						<div id="mod-div">
+							<div class="tabs">
+								<ul class="nav nav-tabs">
+									<li class="active"><a href="#tabs-3" >Modules</a></li>							
+								</ul>
+							</div>
+							<div class="tab-content">
+								<form name="module-permission" id="module-permission" action="<?php echo base_url().'permission'; ?>" method="POST" onsubmit="event.preventDefault();return validateMyForm();">
+								
+									<input type="hidden" name="id_user" id="id_user" value="">
+									
+									<div id="tabs-3" class="tab-pane fade in active">
+								
+										<div class="panel-group full-body" id="accordion_19" role="tablist" aria-multiselectable="true">
+											<?php if($modules){
+												$i=1;
+												foreach((array) $modules as $val) {
+											?>
+											<div class="panel panel-info">
+												<div class="panel-heading" role="tab" id="heading_<?php echo $i; ?>">
+													<h4 class="panel-title">
+														<a role="collapsed" class="collapsed" data-toggle="collapse" id="collapse_module_<?php echo $i; ?>" href="#collapse_<?php echo $i; ?>" aria-expanded="true" aria-controls="collapse_<?php echo $i; ?>" >
+														  <?php echo $val['menu']->menu_label; ?> 
+														 </a>
+														 <?php if(!@$val['submenu']) { ?>
+														  <input type="checkbox" style="float: right;" id="module_<?php echo $i; ?>"  name="module[]" value="<?php echo $val['menu']->id_menu; ?>" > <span class="check-right">Select</span> <?php } ?>
+													</h4>
+												</div>
+												<?php
+												if(@$val['submenu']) { ?>
+												<div id="collapse_<?php echo $i; ?>" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading_<?php echo $i; ?>">
+													<div class="panel-body">
+														<input type="hidden" name="module[]" value="" id="id_module_<?php echo $i; ?>">
+														
+														<?php if(@$val['submenu']) { ?>
+														 <input type="checkbox"  name="select_sub" value="<?php echo $val['menu']->id_menu; ?>"  style="float: right;"  onchange="select_all_submodule(this.id,this.value);" id="module_<?php echo $i; ?>"> <span class="check-right">Select All</span> <?php } ?>
+														
+														<?php
+														foreach((array) $val['submenu'] as $res) { ?>
+														<div class="col-2"><input type="checkbox" name="submodule[]" class="submodule_<?php echo $i; ?>" value="<?php echo $res->id_menu; ?>" id="submodule_<?php echo $i; ?>" onclick="get_module_value('<?php echo $val['menu']->id_menu; ?>',this.id)">  <?php echo $res->menu_label; ?></div>
+														<?php } ?>
+													</div>
+												</div>
+												<?php } ?>
+											</div>
+											<?php
+												$i++;
+												}
+											} 	?>
+										</div>
+									</div>
+									<div class="col-md-12 col-sm-12 col-xs-12"> 
+										<button type="submit" class="btn btn-primary">Submit</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				<!-- #END# Multiple Items To Be Open -->
+				</form>	
+			</div>
+			<!---->
+		</div>
+		
+	</div>
+	
+  </div>
+  	
+</div>
+<!-- /page content -->
+<?php include("./application/views/common/template-bottom.php"); ?> 
+<script type='text/javascript' src="<?php echo base_url(); ?>/assets/js/dataTables.bootstrap.min.js"></script>
+<script type='text/javascript'>
+ $(document).ready(function() {
+	$('#err-div').hide();
+	$('#mod-div').hide();
+	$('#success-div').delay(2000).fadeOut('slow');
+     
+    $('#datatable').dataTable( {
+		"bLengthChange": false,
+		"bFilter": true,
+		"bInfo": false,
+		"bAutoWidth": false,
+		"pageLength": 8,
+		"pagingType": "numbers",
+		"oLanguage": { "sSearch": "" }, 
+        //"columnDefs": [ { orderable: false, targets: [0]}],
+			'aaSorting': [[0, 'asc']] ,
+			"ajax":{
+						url :"<?php echo base_url(); ?>permission/list_module_permission?type=1", 
+						type: "post",  // method  , by default get
+						error: function(){  // error handling
+						$("#datatable").append('<tbody class="datatable-error"><tr><th colspan="3">Sorry! no data to display.</th></tr></tbody>');
+							
+						}
+					}
+ 
+    } );
+	 $('#datatable2').dataTable( {
+		"bLengthChange": false,
+		"bFilter": true,
+		"bInfo": false,
+		"bAutoWidth": false,
+		"pageLength": 8,
+		"pagingType": "numbers",
+		"oLanguage": { "sSearch": "" } ,
+        //"columnDefs": [ { orderable: false, targets: [0]}],
+			'aaSorting': [[0, 'asc']] ,
+			"ajax":{
+						url :"<?php echo base_url(); ?>permission/list_module_permission?type=2", 
+						type: "post",  // method  , by default get
+						error: function(){  // error handling
+						$("#datatable2").append('<tbody class="datatable-error"><tr><th colspan="4">Sorry! no data to display.</th></tr></tbody>');
+							
+						}
+					}
+ 
+    } );
+	 
+	$("#tabs").on("click", "li", function(){
+		clear_all();
+		$('#loading_div').show();
+	});
+	
+
+}); //end document load
+function validateMyForm()
+{
+	var id_user = $('#id_user').val();
+	var atLeastOneSubmoduleIsChecked = $('input[name="submodule[]"]').is(':checked');
+	var atLeastOneModuleIsChecked = $('input[name="module[]"]').is(':checked');
+	
+	if(id_user=='')
+	{
+		$('#err-div').show();
+		$('#err-div').html('<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>Please select User.</div>');
+		return false;
+	}
+	else if(atLeastOneSubmoduleIsChecked==false && atLeastOneModuleIsChecked==false)
+	{
+		$('#err-div').show();
+		$('#err-div').html('<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>Please select Module/Submodule.</div>');
+		return false;
+	}
+	document.forms['module-permission'].submit();
+	//alert("validations passed");
+	return true;
+}
+ 
+ function get_module_value(module_id,rowid)
+ {
+	var arr = rowid.split('_');
+	var new_id = arr[1];
+	
+	if ($('.'+rowid).is(':checked')) {
+		$('#id_module_'+new_id).val(module_id);
+	}
+	else
+	{
+		$('#id_module_'+new_id).val('');
+	}
+	
+ }
+
+ function getuservalue(id)
+ {
+	$('#success-div').hide();
+	$('#id_user').val('');
+	$('input[type=checkbox]').removeAttr('checked');
+	$('input[name="module[]"]').val('');
+	$('#mod-div').hide();
+	$('#loading_div, #loading').show();
+	if ($('#user_'+id).is(':checked')) {
+		$('#loading').fadeIn('slow');
+		$('#mod-div').delay(1500).fadeIn('slow');
+		$('#loading_div, #loading').delay(1000).fadeOut('slow');
+		$('#id_user').val(id);
+		get_all_modules();
+		
+    }
+ }
+ function clear_all()
+ {
+	$('#id_user').val('');
+	$('input[type=checkbox]').removeAttr('checked');
+	$('input[type=radio]').removeAttr('checked');
+	$('input[name="module[]"]').val('');
+	$('#mod-div').hide();
+	$('#success-div').hide();
+	
+ }
+	function select_all_submodule(id,modulevalue)
+	{
+	   var id_area = id.split('_');
+	   var id_new = id_area[1];
+	   if ($('#'+id).is(':checked')) {
+		   
+		   $('.sub'+id).prop('checked','true');
+		   $('#id_module_'+id_new).val(modulevalue);
+	   }
+	   else
+	   {
+		   $('.sub'+id).removeAttr('checked');
+		   $('.sub'+id).removeAttr('checked');
+		   $('#id_module_'+id_new).val('');
+	   }
+	   
+	}
+	function get_all_modules()
+	{
+	   var userid = $('#id_user').val();
+	   
+	   var url_ 		= "<?php echo base_url("permission/get_user_permission_module?id_user=");?>"+userid;
+	   $.ajax({
+		   type	: "POST",
+		   url		: url_,
+		   dataType: 'json',
+		   success	: function(msg){
+			   if(msg)
+			   {
+				   $.each(msg, function( k,v) {
+					   
+					   $('input:checkbox[name="module[]"][value="' + v.module + '"]').prop('checked', 'true');
+					   if(v.submodule)
+					   {
+						   $.each(v.submodule, function( index,value) {
+							   $('input:checkbox[name="submodule[]"][value="' + value + '"]').prop('checked', 'true');
+							   
+							   var hid = $('input:checkbox[name="submodule[]"][value="' + value + '"]').attr('id');
+							   var arr1 = hid.split('_');
+							   var new_id = arr1[1];
+							   $('#id_module_'+new_id).val(v.module);
+						   
+						   });
+					   }
+					   
+				   });
+				   
+			   }
+				   
+		   }
+	   });	
+	}
+ 
+</script>

@@ -1,0 +1,6 @@
+<footer>
+  <div class="pull-right">
+	<?php echo _COPYRIGHT_; ?>
+  </div>
+  <div class="clearfix"></div>
+</footer>

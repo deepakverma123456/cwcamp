@@ -1,0 +1,59 @@
+<?php
+
+class App_auth
+{
+	private $CI;
+	
+	function App_auth()
+	{
+		$this->CI = &get_instance();
+		if(!isset($this->CI->session)){  //Check if session lib is loaded or not
+              $this->CI->load->library('session');  //If not loaded, then load it here
+        }
+	}
+	
+	function index()
+	{
+		// If no loggedin
+		$withoutLoginPageArray = array('login','forgot-password','reset-password','deploy','ajaxlogout','');
+		
+		$urls = array();
+		$url = $_SERVER['REQUEST_URI'];
+		$urls = explode('/',$url);
+		//echo "<pre>";print_r($urls);die;
+		
+		if ( $this->CI->session->userdata('user_id') == ''  && !in_array($urls[2],$withoutLoginPageArray)  )  // If no session found redirect to login page.
+		{
+			redirect(base_url());
+		}
+		elseif( $this->CI->session->userdata('user_id') != '' && in_array($urls[2],$withoutLoginPageArray ))
+		{
+			if($urls[2]=='deploy' && $urls[3]=='campaign')
+			redirect(base_url('user/dashboard'));
+		}
+		else
+		{
+			$userid = $this->CI->session->userdata('user_id');
+			$role_id = $this->CI->session->userdata('role_id');
+			//redirect user if he tries to access no permitted blocks
+			if($role_id=='1')
+			{
+				$uri = $urls[2].'/'.$urls[3];
+				$this->DCI = &get_instance();
+				$this->DCI->load->model("Permission_model");
+				$modules = $this->DCI->Permission_model->user_module_submodule($userid);
+				$current_menu = $this->DCI->Permission_model->get_menu_from_name($uri); 
+				
+				if(!in_array($current_menu,$modules) && $uri !='user/dashboard')
+				{
+					redirect(base_url('user/dashboard'));
+				}
+				
+			}
+			
+			
+		}
+	}
+}
+
+?>

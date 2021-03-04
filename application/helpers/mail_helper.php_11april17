@@ -1,0 +1,165 @@
+<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+// function to send mail on request of forgot password 
+function forgetMailService($data = null)
+{
+	$ci 	  = &get_instance();
+
+	$from_email	= $ci->common_model->get_admin_email();
+	$from_name	= 'cwcamp.com';
+	$to			= $data['email'];
+	$subject	= "Recover Your Password";
+	
+	$time	  = time();
+	$url 	  = base_url();
+
+	$message  = "";
+	
+	$message .= '<table width="100%" align="center" border="0" cellpadding="0" cellspacing="0">';		
+	$message .= '<tr>';
+	$message .= '<td valign="top" align="left" style="padding-top:5px;">
+					Hi '.$data['name'].',
+				 </td></tr>';
+	$message .= '<tr>';
+	$message .= '<td valign="top" align="left" style="padding-top:5px;">
+					You have successfully recover your password.
+					Password : '.$data["password"].'
+					<br />Please click here to login <br />'.$url.'
+					 </td></tr>';
+	$message .= '<td valign="top" align="left" style="padding-top:5px;"><br />
+					If the link is not clickable please copy and paste it to your browser: 
+					'.$url.'
+				 <br /><br /></td></tr>';
+	$message .= '<tr>';
+	$message .= '<td valign="top" align="left" style="padding-top:5px;">
+					<br />Regards, <br />
+					Admin cwcamp.com
+				 </td></tr>';
+	$message .= '</table>';	
+	//echo $message; exit;
+	// Always set content-type when sending HTML email
+	$headers = "MIME-Version: 1.0" . "\r\n";
+	$headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+	
+	// More headers
+	$from_email = "manoj.kumar@srmtechsol.com"; // Remove this line when upload on live
+	$headers .= 'From: '.$from_email.'' . "\r\n";
+	$headers .= 'Cc: manoj.kumar@srmtechsol.com' . "\r\n";
+	return mail($to,$subject,$message,$headers);		
+}
+
+// function to send mail for registered user
+function send_registration_confirmation($data)
+{
+	$ci = &get_instance();
+
+	$from_email	= $ci->common_model->get_admin_email();
+	$created_by	= $ci->common_model->get_admin_email($data['created_by']);
+	$from_name	= 'Cartwire Admin';	
+	$name		= $data['name'];
+	$to			= $data['email'];	
+	$created_date = $data['created_date'];	
+	
+	$subject 	= "Welcome at cwcamp";
+	$subject_admin 	= "New User Registration";
+	$url 	    = base_url();	
+	
+	$message  = "";
+	
+	$message .= '<table width="100%" align="center" border="0" cellpadding="0" cellspacing="0">';		
+	$message .= '<tr>';
+	$message .= '<td valign="top" align="left" style="padding-top:5px;">';
+	$message .= 'Dear '.ucwords($name).''.',<br><br><br>';				
+	$message .= '</td></tr>';
+	$message .= '<tr>';
+	$message .= '<td valign="top" align="left" style="padding-top:5px;">';
+	$message .= "<p>Welcome to <a href='".$url."'>cwcamp.com</a>. Your registration is successful.</p>";
+	$message .= '</td></tr>';	
+	
+	$message .= '<tr>';
+	$message .= '<td valign="top" align="left" style="padding-top:5px;">';
+	$message .= "<p><br><br>Kind regards,<br><br>Cartwire Admin</p>";
+	$message .= '</td></tr>';	
+	$message .= '</table>';	
+	
+	$mess_admin = '<table align="center" cellpadding="0" cellspacing="0" style="width:650px;">
+				  <tr>
+					<td style="padding:10px; height:auto; background:#7dcfe2; border: 1px solid #00a0c6; font-family:Arial, Helvetica, sans-serif; ">
+					  <table cellspacing="0" cellpadding="0" style="width:100%; background-color:#ffffff">
+						<tr>
+						  <td style="padding:10px;">
+							<table border="0" cellspacing="0" cellpadding="0" style="width:100%; font-size:14px;">
+							  <tr>
+								<td height="40" style="font-size:22px; text-align:left; border-bottom:1px solid #c1c1c1; padding-bottom:15px;">
+								<img src="'.base_url().'images/logo.png" alt="" /></td>
+							  </tr>
+							  <tr>
+								<td >&nbsp;</td>
+							  </tr>
+							  <tr>
+								<td style="height:5px"></td>
+							  </tr>
+							  <tr>
+								<td>New User have been registered successfully. Details are as follows:</td>
+							  </tr>
+							  <tr>
+								<td style="height:5px"></td>
+							  </tr>							
+							  <tr>
+								<td style="font-size:12px; height:20px"><strong>User Name :</strong> '.$name.' </td>
+							  </tr>
+							    <tr>
+								<td style="font-size:12px; height:20px"><strong>User Email ID :</strong> '.$to.'</td>
+							  </tr>';
+							  
+							   $mess_admin .='<tr>
+								<td style="font-size:12px; height:20px"><strong>Registration Date :</strong> '.$created_date.'</td>
+							  </tr>	  
+							  <tr>
+								<td>&nbsp;</td>
+							  </tr>							 
+							</table></td>
+						</tr>
+					  </table></td>
+				  </tr>
+				</table>';	
+
+	include('mail/mail_sending.php'); 
+	$mail = new mailSending;			
+	$mail->send_mail($to, '', $subject, $message, $from_email, $from_name);
+	return $mail->send_mail($from_email, '', $subject_admin, $mess_admin, $from_email, $from_name);
+}
+
+// function to send mail for registered user
+function send_testmail()
+{
+	$ci = &get_instance();
+
+	$from_email	= $ci->common_model->get_admin_email();
+	$from_name	= 'cwcamp.com';
+	$name		= "Manoj";
+	$to			= "mnjdv9@gmail.com";
+	$subject 	= "Registration Confirmation";
+	$url 	    = base_url().'user/index';
+	
+	$message  = "";
+	
+	$message .= '<table width="100%" align="center" border="0" cellpadding="0" cellspacing="0">';		
+	$message .= '<tr>';
+	$message .= '<td valign="top" align="left" style="padding-top:5px;">';
+	$message .= 'Dear '.ucwords($name).'';				
+	$message .= '</td></tr>';
+	$message .= '<tr>';
+	$message .= '<td valign="top" align="left" style="padding-top:5px;">';
+	$message .= "<p>You have successfully registered on 99advisors.com </p>";
+	$message .= '</td></tr>';
+	$message .= '<tr>';
+	$message .= '<td valign="top" align="left" style="padding-top:5px;">';
+	$message .= "<a href='".$url."'>Click Here</a> to login.<p>If the link is not clickable please copy and paste it to your browser: <br />".$url."</p>";
+	$message .= '</td></tr>';
+	$message .= '</table>';
+	
+	include('mail/mail_sending.php');
+	$mail = new mailSending;			
+	return $mail->send_mail($to, '', $subject, $message, $from_email, $from_name);
+}

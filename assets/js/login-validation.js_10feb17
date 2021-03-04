@@ -1,0 +1,70 @@
+$(document).ready(function () {
+	$('#msg').hide();
+    $("#form").validate({
+        rules: {
+			"email": {
+				required: true,
+				email: true
+            },
+            "password": {
+                required: true
+            }
+        },
+        messages: {
+            email: {
+                required: "Please enter CartWire registered email address.",
+                email: "Please enter a valid email address."
+            },
+            password:"Please enter password"
+        },
+        submitHandler: function (form) {
+		
+            var formData = $(form).serialize();
+			//var csrf = $('input[name="csrf_test_name"]').val();
+			//formData.csrf_test_name = csrf;
+
+
+			$('body').addClass("loading");
+			$("#submit").prop('disabled', true);
+			// AJAX Code To Submit Form.
+			$.ajax({
+				type: "POST",
+				url: _BASEPATH_+"login/authenticate",
+				data: formData,
+				cache: false,
+				success: function(res){
+					
+					if(res=='200')
+					{
+						setTimeout(function(){
+							$('.modal-element').hide().html('<span class="label label-success"><i class="glyphicon glyphicon-ok">&nbsp;</i>Redirecting</span>').fadeIn();
+							setTimeout(function(){
+								window.location = _BASEPATH_+"user/dashboard";
+							}, 2000);
+							
+						}, 2000);
+						
+					}
+					else
+					{
+						setTimeout(function(){
+							$('body').removeClass("loading");
+							$("#submit").prop('disabled', false);
+							$('#msg').html('<div class="alert alert-danger alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>Invalid Email or Password</div>').fadeIn();
+						}, 2000);
+					}
+				}
+			});
+        }
+    });
+    $(".fget").click(function () {
+		// Set the effect type
+		var effect = 'slide';
+		  
+		// Set the duration (default: 400 milliseconds)
+		var duration = 800;
+		
+		 $('#forget').toggle(effect, { direction: "down" }, duration);
+		 $('#login').toggle(effect, { direction: "down" }, duration);
+	});
+});

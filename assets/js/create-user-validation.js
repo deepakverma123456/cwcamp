@@ -1,0 +1,146 @@
+$(document).ready(function () {
+    $("#form").validate({
+        rules: {
+			"name": {
+                required: true,
+            },
+            "email": {
+                required: true,
+                email: true,               
+				remote: {
+                    url: _BASEPATH_+"user/checkemail",
+                    type: "post"
+                }
+            },
+            "password": {
+                required: true,
+            },
+			"passwordr": {
+                equalTo: "#password"
+            }
+        },
+        messages: {
+			name:"Please enter full name.",
+            email: {
+                required: "Please enter CartWire registered email address.",
+                email: "Please enter a valid email address.",
+                remote: "Email already registered with us.",
+            },
+            password:"Please enter password.",
+			passwordr: {
+                required: "Please repeat similar password."
+            },
+        },
+        submitHandler: function (form) {		
+            var formData = $(form).serialize();			
+            $.ajax({
+                url :_BASEPATH_+"user/create",
+                type: "post",
+                data: formData,
+                beforeSend: function () {
+                  $('.fsubmit').show();
+                  $("#submit").prop('disabled', true);
+                },
+                success: function (data) {
+					//alert(data);
+					$('.fsubmit').hide();
+                    $("#submit").prop('disabled', false);					
+					$('#msg').html('<div class="alert alert-success alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>'+data+'.</div>').fadeIn();
+					setTimeout(function(){
+						$('#msg').fadeOut().html('');
+					}, 2000);
+					$('#form').each (function(){
+						this.reset();
+					});
+				}
+            });
+            
+        }
+    });
+    
+});
+
+
+$(document).ready(function () {
+    $("#editform").validate({
+        rules: {
+			"name": {
+                required: true,
+            },
+            "email": {
+                required: true,
+                email: true,               
+				remote: {
+                    url: _BASEPATH_+"user/checkemail?id="+$("#id").val(),
+                    type: "post"
+                }
+            },
+            "password": {
+                required: true,
+            }			
+        },
+        messages: {
+			name:"Please enter full name.",
+            email: {
+                required: "Please enter CartWire registered email address.",
+                email: "Please enter a valid email address.",
+                remote: "Email already registered with us.",
+            },
+            password:"Please enter password.",			
+        },
+        submitHandler: function (form) {		
+            var formData = $(form).serialize();			
+            $.ajax({
+                url :_BASEPATH_+"user/edit_user",
+                type: "post",
+                data: formData,
+                beforeSend: function () {
+                  $('.fsubmit').show();
+                  $("#submit").prop('disabled', true);
+                },
+                success: function (data) {
+					if(data==1)
+					{
+						$('.fsubmit').hide();
+						$("#submit").prop('disabled', false);					
+						$('#msg').html('<div class="alert alert-success alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>User updated successfully.</div>').fadeIn();
+						setTimeout(function(){
+							$('#msg').fadeOut().html('');
+							$('#editform').each (function(){
+								this.reset();
+							});
+							location.reload();
+						}, 2000);						
+					}
+					else
+					{
+						$('#msg').html('<div class="alert alert-success alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>Some error occured.</div>').fadeIn();
+						setTimeout(function(){
+							$('#msg').fadeOut().html('');
+						}, 2000);
+					}
+				}
+            });
+            
+        }
+    });
+    $('#show_password').click(function(){
+		var type = "";		
+		if($("#password").attr("type")=="password")
+		{
+			type = "text";
+			 $('#show_password').html('Hide');
+		}
+		else
+		{
+			type = "password";
+			 $('#show_password').html('Show');
+		}
+		$('#password').attr('type', type);		
+	});
+	$('#password').val($('#pas').text());
+	
+});
+
+
+

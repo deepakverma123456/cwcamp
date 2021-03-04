@@ -1,0 +1,117 @@
+$(document).ready(function () {
+    $("#campaign_form").validate({
+        rules: {
+			"campaign_name": {
+                required: true,
+            },
+            "promo_code": {
+                required: true,
+            },
+			"retailer_id": {
+                required: true,
+            }
+        },
+        messages: {
+			name:"Please enter full name.",
+            email: {
+                required: "Please enter CartWire registered email address.",
+                email: "Please enter a valid email address.",
+                remote: "Email already registered with us.",
+            },
+            password:"Please enter password.",
+			passwordr: {
+                required: "Please repeat similar password."
+            },
+        },
+        submitHandler: function (form) {		
+            var formData = $(form).serialize();
+			//alert(formData);
+            $.ajax({
+                url :_BASEPATH_+"campaign/create",
+                type: "post",
+                data: formData,
+                beforeSend: function () {
+                  $('.fsubmit_campaign').show();
+                  $("#submit").prop('disabled', true);
+                },
+                success: function (data) {
+					//alert(data);
+					$('.fsubmit_campaign').hide();
+                    $("#submit").prop('disabled', false);					
+					$('#msg').html('<div class="alert alert-success alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>'+data+'.</div>').fadeIn();
+					setTimeout(function(){
+						$('#msg').fadeOut().html('');
+					}, 2000);
+					//header('Location: '+_BASEPATH_+'campaign/campaign_list_all');
+					window.location.href = _BASEPATH_+'campaign/all';
+					$('#form').each (function(){
+						this.reset();
+					});
+				}
+            });
+            
+        }
+    });
+    $("#productform").validate({
+        rules: {
+			"product_url": {
+                required: true,
+				url: true,
+            },
+			"product_name": {
+                required: true,
+            },
+            "product_image_url": {
+                required: true,
+            }
+        },
+        messages: {
+			name:"Please enter full name.",
+            email: {
+                required: "Please enter CartWire registered email address.",
+                email: "Please enter a valid email address.",
+                remote: "Email already registered with us.",
+            },
+            password:"Please enter password.",
+			passwordr: {
+                required: "Please repeat similar password."
+            },
+        },
+        submitHandler: function (form) {		
+            var formData = $(form).serialize();
+            $.ajax({
+                url :_BASEPATH_+"campaign/create_product",
+                type: "post",
+                data: formData,
+                beforeSend: function () {
+                  $('.fsubmit').show();
+                  $("#submit").prop('disabled', true);
+                },
+                success: function (data) {
+					$('.fsubmit').hide();
+                    $("#submit").prop('disabled', false);
+					var json = $.parseJSON(data);
+					if (json['result']=='success') {
+						$('#model_link').html('<input type="hidden" name="product_retailer_id" value="'+json['id']+'"><div class="alert-success alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>'+json['mesg']+'.</div>');
+					}else{
+						$('#model_link').html('<div class="alert alert-failed alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>'+json['mesg']+'.</div>');
+					}
+					$('#msgp').html('<div class="alert alert-success alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>'+json['mesg']+'.</div>').fadeIn();
+					setTimeout(function(){
+						$('#msgp').fadeOut().html('');
+						$( ".close" ).trigger( "click" );
+						$('#submit_campaign').show();
+					}, 3000);
+						
+					$('#form').each (function(){
+						this.reset();
+					});
+				}
+            });
+            
+        }
+    });
+
+});
+
+
